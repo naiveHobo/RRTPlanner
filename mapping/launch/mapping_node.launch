@@ -7,6 +7,6 @@
         <param name="width" value="500"/>
         <param name="resolution" value="0.05"/>
         <!--<param name="save_map" value=""/>-->
-        <!--<param name="load_map" value=""/>-->
+        <param name="load_map" value="$(find mapping)/maps/map.png"/>
     </node>    
 </launch>

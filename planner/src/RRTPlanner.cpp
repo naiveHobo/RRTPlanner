@@ -161,7 +161,7 @@ std::vector<Vertex> RRTPlanner::getPlan() {
     while (occupied) {
       randomPoint.x = distX(eng);
       randomPoint.y = distY(eng);
-      if (!isPointOccupied(randomPoint))
+      if (!isPointOccupied(randomPoint) && !findInPoints(points, randomPoint))
         occupied = false;
     }
 

@@ -3,7 +3,6 @@
         <param name="map_topic" value="/map"/>
         <param name="goal_topic" value="/goal"/>
         <param name="pose_topic" value="/pose"/>
-        <param name="min_vertices" value="100"/>
         <param name="max_vertices" value="1500"/>
         <param name="step_size" value="20"/>
     </node>

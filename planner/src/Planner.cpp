@@ -35,7 +35,7 @@ void Planner::goalCallback(const geometry_msgs::Pose2D::ConstPtr &goal) {
   goal_.x = (int) goal->x;
   goal_.y = (int) goal->y;
   ROS_INFO("Received goal: (%d, %d)", goal_.x, goal_.y);
-  if(pose_set_)
+  if(pose_set_ && !map_.empty())
     getPlan();
 }
 

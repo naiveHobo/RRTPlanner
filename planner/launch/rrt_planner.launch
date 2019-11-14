@@ -7,15 +7,14 @@
         <param name="width" value="500"/>
         <param name="resolution" value="0.05"/>
         <!--<param name="save_map" value=""/>-->
-        <!--<param name="load_map" value=""/>-->
+        <param name="load_map" value="$(find mapping)/maps/map.png"/>
     </node>
 
     <node type="rrt_planner" name="rrt_planner" pkg="planner" output="screen">
         <param name="map_topic" value="/map"/>
         <param name="goal_topic" value="/goal"/>
         <param name="pose_topic" value="/pose"/>
-        <param name="min_vertices" value="100"/>
-        <param name="max_vertices" value="1500"/>
+        <param name="max_vertices" value="2000"/>
         <param name="step_size" value="20"/>
     </node>
 
