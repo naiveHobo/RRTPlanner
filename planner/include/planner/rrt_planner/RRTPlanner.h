@@ -47,7 +47,6 @@ class RRTPlanner : public Planner {
   bool isPointOccupied(Vertex v);
 
   int max_vertices_;
-  int min_vertices_;
   int step_;
 
 };

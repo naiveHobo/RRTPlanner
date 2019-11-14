@@ -5,7 +5,6 @@
 #include "planner/rrt_planner/RRTPlanner.h"
 
 RRTPlanner::RRTPlanner() {
-  private_nh_.param("min_vertices", min_vertices_, 20);
   private_nh_.param("max_vertices", max_vertices_, 1500);
   private_nh_.param("step_size", step_, 20);
 

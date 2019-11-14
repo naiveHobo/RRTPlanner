@@ -51,6 +51,7 @@ void Map::markObstacles() {
   ROS_INFO("Press 'q' to quit");
   ROS_INFO("Press 's' to save and move on");
   ROS_INFO("Press numbers to the keyboard to change width of paint brush");
+  ROS_INFO("Right-click to toggle between eraser and paint brush");
 
   char key;
 
