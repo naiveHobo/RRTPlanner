@@ -26,21 +26,21 @@ class RRTPlanner : public Planner {
 
   RRTPlanner();
 
-  Vertex findClosestPoint(std::vector<Vertex> &points, Vertex point);
+  Vertex findClosestPoint(Vertex point);
+
+  bool findInPoints(std::vector<Vertex> &newPoints, Vertex point);
 
   std::vector<Vertex> connectPoints(Vertex a, Vertex b);
 
-  void addToGraph(std::vector<Vertex>& newPoints, Vertex point, Graph& graph);
-
-  bool findInPoints(std::vector<Vertex>& newPoints, Vertex point);
+  void addToGraph(std::vector<Vertex>& points, Vertex point);
 
   std::vector<Vertex> getPlan() override;
 
-  std::vector<Vertex> getPath(Vertex src, Vertex dest, Graph& graph);
-
-  void print(Graph& graph);
+  std::vector<Vertex> getPath(Vertex src, Vertex dest);
 
  private:
+
+  std::shared_ptr<Graph> graph_;
 
   double euclideanDistance(Vertex& a, Vertex& b);
 

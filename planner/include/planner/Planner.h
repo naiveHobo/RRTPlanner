@@ -26,13 +26,13 @@ class Planner {
 
   virtual std::vector<Vertex> getPlan() = 0;
 
+ protected:
   Vertex goal_;
   Vertex pose_;
 
   cv::Mat map_;
   cv::Mat display_map_;
 
- protected:
   ros::NodeHandle nh_;
   ros::NodeHandle private_nh_;
 

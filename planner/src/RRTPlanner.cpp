@@ -11,20 +11,23 @@ RRTPlanner::RRTPlanner() {
   cv::namedWindow("Path");
 }
 
-Vertex RRTPlanner::findClosestPoint(std::vector<Vertex> &points, Vertex point) {
+Vertex RRTPlanner::findClosestPoint(Vertex point) {
   auto minDist = DBL_MAX;
   double dist;
   Vertex closest;
 
-  for (auto &p : points) {
-    if (p == point)
+  for (auto &node : graph_->getNodes()) {
+
+    auto root = node->getRoot();
+
+    if (root == point)
       continue;
 
-    dist = euclideanDistance(p, point);
+    dist = euclideanDistance(root, point);
 
     if (dist < minDist) {
       minDist = dist;
-      closest = p;
+      closest = root;
     }
   }
 
@@ -63,19 +66,19 @@ std::vector<Vertex> RRTPlanner::connectPoints(Vertex a, Vertex b) {
   return newPoints;
 }
 
-bool RRTPlanner::findInPoints(std::vector<Vertex> &newPoints, Vertex point) {
-  for (auto &p : newPoints) {
+bool RRTPlanner::findInPoints(std::vector<Vertex> &points, Vertex point) {
+  for (auto &p : points) {
     if (p == point)
       return true;
   }
   return false;
 }
 
-void RRTPlanner::addToGraph(std::vector<Vertex> &newPoints, Vertex point, Graph& graph) {
+void RRTPlanner::addToGraph(std::vector<Vertex> &newPoints, Vertex point) {
   if (newPoints.size() > 1) {
     int p = 0;
     for (p = 0; p < newPoints.size() - 1; p++) {
-      graph.add(newPoints[p], newPoints[p + 1]);
+      graph_->add(newPoints[p], newPoints[p + 1]);
 
       if (p != 0)
         cv::circle(display_map_, cv::Point(newPoints[p].x, newPoints[p].y), 1, cv::Scalar(0, 255, 255), -1);
@@ -94,11 +97,11 @@ void RRTPlanner::addToGraph(std::vector<Vertex> &newPoints, Vertex point, Graph&
   }
 }
 
-std::vector<Vertex> RRTPlanner::getPath(Vertex src, Vertex dest, Graph& graph) {
-  auto srcNode = graph.find(src);
-  auto destNode = graph.find(dest);
+std::vector<Vertex> RRTPlanner::getPath(Vertex src, Vertex dest) {
+  auto srcNode = graph_->find(src);
+  auto destNode = graph_->find(dest);
   std::vector<Vertex> path;
-  graph.getPath(srcNode, destNode, path);
+  graph_->getPath(srcNode, destNode, path);
   std::reverse(path.begin(), path.end());
   return path;
 }
@@ -130,12 +133,8 @@ std::vector<Vertex> RRTPlanner::getPlan() {
   cv::circle(display_map_, cv::Point(pose_.x, pose_.y), 3, cv::Scalar(0, 255, 0), -1);
   cv::circle(display_map_, cv::Point(goal_.x, goal_.y), 3, cv::Scalar(0, 0, 255), -1);
 
-  // vector to store all points in the graph and graph to store links
-  std::vector<Vertex> points;
-  Graph graph;
-
-  points.emplace_back(pose_);
-  graph.add(pose_);
+  graph_.reset(new Graph());
+  graph_->add(pose_);
 
   // random integer generator
   std::random_device device;
@@ -151,7 +150,7 @@ std::vector<Vertex> RRTPlanner::getPlan() {
   Vertex randomPoint;
   Vertex closestPoint;
 
-  while (graph.find(goal_) == nullptr && points.size() < max_vertices_ && totalPoints < 30000) {
+  while (graph_->find(goal_) == nullptr && graph_->getSize() < max_vertices_ && totalPoints < 30000) {
 
     if (totalPoints % 100 == 0)
       ROS_INFO("Random points generated: %d", totalPoints);
@@ -161,7 +160,7 @@ std::vector<Vertex> RRTPlanner::getPlan() {
     while (occupied) {
       randomPoint.x = distX(eng);
       randomPoint.y = distY(eng);
-      if (!isPointOccupied(randomPoint) && !findInPoints(points, randomPoint))
+      if (!isPointOccupied(randomPoint) && graph_->find(randomPoint) == nullptr)
         occupied = false;
     }
 
@@ -171,34 +170,30 @@ std::vector<Vertex> RRTPlanner::getPlan() {
     }
 
     // find closest point in the graph to the sampled point
-    closestPoint = findClosestPoint(points, randomPoint);
+    closestPoint = findClosestPoint(randomPoint);
     newPoints = connectPoints(randomPoint, closestPoint);
-    addToGraph(newPoints, randomPoint, graph);
-    newPoints.erase(newPoints.begin());
-    points.insert(points.end(), newPoints.begin(), newPoints.end());
+    addToGraph(newPoints, randomPoint);
 
     totalPoints += 1;
 
-    closestPoint = findClosestPoint(points, goal_);
+    closestPoint = findClosestPoint(goal_);
     newPoints = connectPoints(goal_, closestPoint);
-    addToGraph(newPoints, goal_, graph);
-    newPoints.erase(newPoints.begin());
-    points.insert(points.end(), newPoints.begin(), newPoints.end());
+    addToGraph(newPoints, goal_);
 
     cv::imshow("Path", display_map_);
     cv::waitKey(1);
   }
 
   std::vector<Vertex> path;
-  if (graph.find(goal_) != nullptr) {
+  if (graph_->find(goal_) != nullptr) {
     ROS_INFO("Goal found!");
-    path = getPath(pose_, goal_, graph);
+    path = getPath(pose_, goal_);
     for (int i = 0; i < path.size() - 1; i++)
       cv::line(display_map_, cv::Point(path[i].x, path[i].y), cv::Point(path[i+1].x, path[i+1].y), cv::Scalar(0, 0, 255), 1);
   } else
     ROS_INFO("Could not reach goal");
 
-  ROS_INFO("Total vertex in graph: %d", graph.getSize());
+  ROS_INFO("Total vertex in graph: %d", graph_->getSize());
 
   cv::imshow("Path", display_map_);
   cv::waitKey(100);
@@ -213,13 +208,4 @@ double RRTPlanner::euclideanDistance(Vertex &a, Vertex &b) {
 bool RRTPlanner::isPointOccupied(Vertex v) {
   cv::Vec3b vec = display_map_.at<cv::Vec3b>(v.y, v.x);
   return (vec.val[0] == 255 && vec.val[1] == 255 && vec.val[2] == 255);
-}
-
-void RRTPlanner::print(Graph& graph) {
-  for (auto &node : graph.getNodes()) {
-    ROS_INFO("Root: (%d, %d)", node->getRoot().x, node->getRoot().y);
-    ROS_INFO("Links:");
-    for (auto &link : node->getLinks())
-      ROS_INFO("(%d, %d)", link->getRoot().x, link->getRoot().y);
-  }
 }
