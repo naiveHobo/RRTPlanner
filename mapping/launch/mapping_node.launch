@@ -1,0 +1,12 @@
+<launch>
+    <node type="mapping_node" name="mapping_node" pkg="mapping" output="screen">
+        <param name="map_topic" value="/map"/>
+        <param name="goal_topic" value="/goal"/>
+        <param name="pose_topic" value="/pose"/>
+        <param name="height" value="500"/>
+        <param name="width" value="500"/>
+        <param name="resolution" value="0.05"/>
+        <!--<param name="save_map" value=""/>-->
+        <!--<param name="load_map" value=""/>-->
+    </node>    
+</launch>
