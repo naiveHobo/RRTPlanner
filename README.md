@@ -14,6 +14,26 @@ Clone this repository in a catkin workspace and run the following command to bui
 catkin build
 ```
 
+## Planner
+
+The planner package provides an implementation of the RRT algorithm.
+
+![Path](images/path.gif)
+
+
+To run the rrt planner node:
+```
+roslaunch planner rrt_planner_node.launch
+```
+
+The following parameters can be set in the launch file:
+
+ - `map_topic (default: "/map")`: Topic where the map is published (type: *nav_msgs/OccupancyGrid*)
+ - `goal_topic (default: "/goal")`: Topic where goal is published (type: *geometry_msgs/Pose2D*)
+ - `pose_topic (default: "/pose")`: Topic where starting position is published (type: *geometry_msgs/Pose2D*)
+ - `max_vertices (default: 1500)`: Maximum vertices to be added to graph after which goal search should be stopped
+ - `step_size (default: 20)`: Size of steps. Bigger steps means smaller graphs but more time and vice versa
+
 
 ## Mapping
 
@@ -43,24 +63,3 @@ When running the mapping node:
  - Press 's' to save and move on
  - Press numbers to the keyboard to change width of paint brush
  - Right-click to toggle between eraser and paint brush
- 
-
-## Planner
-
-The planner package provides an implementation of the RRT algorithm.
-
-![Path](images/path.gif)
-
-
-To run the rrt planner node:
-```
-roslaunch planner rrt_planner_node.launch
-```
-
-The following parameters can be set in the launch file:
-
- - `map_topic (default: "/map")`: Topic where the map is published (type: *nav_msgs/OccupancyGrid*)
- - `goal_topic (default: "/goal")`: Topic where goal is published (type: *geometry_msgs/Pose2D*)
- - `pose_topic (default: "/pose")`: Topic where starting position is published (type: *geometry_msgs/Pose2D*)
- - `max_vertices (default: 1500)`: Maximum vertices to be added to graph after which goal search should be stopped
- - `step_size (default: 20)`: Size of steps. Bigger steps means smaller graphs but more time and vice versa
